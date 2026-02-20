@@ -1,5 +1,5 @@
 const http = require("http");
-const userRoutes = require("../routes/userRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const server = http.createServer((req, res) => {
   // try user routes first
