@@ -2,15 +2,22 @@
 const fs = require("fs");
 const path = require("path");
 
-const filePath = path.join(__dirname, "db.json");
+const filePath = path.join(__dirname,"..","Data","users.json");
 
-function readData() {
-  const raw = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(raw);
+ function readData() {
+  try{
+    const raw = fs.readFileSync(filePath, "utf-8");
+    if(!raw || raw.trim()===''){
+      return []
+    }
+    return JSON.parse(raw);
+  }catch(err){
+    throw err;
+  }
 }
 
-function writeData(data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+async function writeData(data) {
+ await fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
 module.exports = { readData, writeData };

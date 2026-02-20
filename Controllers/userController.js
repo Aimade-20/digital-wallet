@@ -18,18 +18,17 @@ function createUser(req, res) {
 
   req.on("end", () => {
     const { name } = JSON.parse(body);
-    const data = readData();
-
+    
     const newUser = {
-      id: crypto.randomUUID(),
+      id: Date.now(),
       name,
     };
+    const data = readData();
 
-    data.users.push(newUser);
+    data.push(newUser);
     writeData(data);
-
-    res.writeHead(201, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(newUser));
+    res.writeHead(201);
+    res.end(JSON.stringify(data))
   });
 }
 
