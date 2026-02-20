@@ -5,14 +5,11 @@ const path = require("path");
 const filePath = path.join(__dirname,"..","Data","users.json");
 
  function readData() {
-  try{
-    const raw = fs.readFileSync(filePath, "utf-8");
-    if(!raw || raw.trim()===''){
-      return []
-    }
-    return JSON.parse(raw);
-  }catch(err){
-    throw err;
+
+    try {
+    return JSON.parse(fs.readFileSync("data.json", "utf8"));
+  } catch {
+    return { users: [] };
   }
 }
 
