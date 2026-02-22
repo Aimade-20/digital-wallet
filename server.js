@@ -1,8 +1,18 @@
 const http = require("http");
 const userRoutes = require("./routes/userRoutes");
+const walletRoutes = require("./routes/walletRoutes");
 
 const server = http.createServer((req, res) => {
-  userRoutes(req, res);
+  
+  if (req.url.startsWith("/api/wallets")) {
+    return walletRoutes(req, res);
+  }
+
+  if (req.url.startsWith("/users")) {
+    return userRoutes(req, res);
+  }
+  res.writeHead(404, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ error: "Route not found" }));
 });
 
 server.listen(3000, () => {

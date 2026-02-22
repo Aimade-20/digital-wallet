@@ -1,92 +1,92 @@
+const { readData, writeData } = require('../dataStor/store.js');
 
+function getUsers() {
+  const data = readData('users.json');
+  return Array.isArray(data) ? data : [];
+}
 
-const { readData, writeData } = require("../dataStor/store");
-
-// get all users
 function getAllUsers(req, res) {
-  const data = readData();
-  if (!data.users) data.users = []; 
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify(data.users));
+  const users = getUsers();
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(users));
 }
 
-// create user
 function createUser(req, res) {
-    const data = readData();
-  if (!data.users) data.users = []; 
-  let body = "";
+  let body = '';
+  req.on('data', chunk => body += chunk.toString());
+  req.on('end', () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Invalid JSON' }));
+    }
 
-  req.on("data", (chunk) => {
-    body += chunk;
-  });
-
-  req.on("end", () => {
-    const { name } = JSON.parse(body);
-
-    const newUser = {
-      id: Date.now(),
-      name,
-    };
-    data.users.push(newUser);
-    writeData(data);
-    res.writeHead(201);
-    res.end(JSON.stringify(data));
-  });
-}
-
-// update user
-function updateUser(req, res, id) {
-    const data = readData();
-  if (!data.users) data.users = []; 
-  let body = "";
-
-  req.on("data", (chunk) => {
-    body += chunk;
-  });
-
-  req.on("end", () => {
-    const { name } = JSON.parse(body);
-
+    const { name } = parsed;
     if (!name) {
-      res.writeHead(400, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Enter Name" }));
-      return;
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Name is required' }));
     }
 
-    const userId = Number(id);
-    const updatedUser = data.users.find((user) => user.id === userId);
-    if (!updatedUser) {
-      res.writeHead(404, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "User not found" }));
-      return;
-    }
+    const users = getUsers();
+    const newUser = { id: Date.now(), name };
+    users.push(newUser);
+    writeData('users.json', users);
 
-    updatedUser.name = name;
-    writeData(data);
-
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(updatedUser));
+    res.writeHead(201, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(newUser));
   });
 }
 
-// delete user
+function updateUser(req, res, id) {
+  let body = '';
+  req.on('data', chunk => body += chunk.toString());
+  req.on('end', () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Invalid JSON' }));
+    }
+
+    const { name } = parsed;
+    if (!name) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Name is required' }));
+    }
+
+    const users = getUsers();
+    const user = users.find(u => u.id === Number(id));
+    if (!user) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'User not found' }));
+    }
+
+    user.name = name;
+    writeData('users.json', users);
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(user));
+  });
+}
+
 function deleteUser(req, res, id) {
-  let data = readData();
-  if (!data.users) data.users = [];
-
+  let users = getUsers();
   const userId = Number(id);
-  const userExists = data.users.some((user) => user.id === userId);
+  const exists = users.some(u => u.id === userId);
 
-  if (!userExists) {
-    res.writeHead(404);
-    return res.end("User not found");
+  if (!exists) {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ error: 'User not found' }));
   }
 
-  data.users = data.users.filter((user) => user.id !== userId);
-  writeData(data);
+  users = users.filter(u => u.id !== userId);
+  writeData('users.json', users);
 
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify(data.users));
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(users));
 }
 
-module.exports = { getAllUsers, createUser, updateUser, deleteUser };
+module.exports = { getUsers, getAllUsers, createUser, updateUser, deleteUser };

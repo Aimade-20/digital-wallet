@@ -1,20 +1,22 @@
-
 const fs = require("fs");
 const path = require("path");
 
-const filePath = path.join(__dirname,"..","Data","users.json");
-
- function readData() {
-
-    try {
+function readData(filename) {
+  const filePath = path.join(__dirname, "..", "Data", filename);
+  try {
     return JSON.parse(fs.readFileSync(filePath, "utf8"));
   } catch {
-    return { users: [] };
+    return [];
   }
 }
 
-async function writeData(data) {
- await fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+function writeData(filename, data) {
+  const filePath = path.join(__dirname, "..", "Data", filename);
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("Failed to write data:", err);
+  }
 }
 
 module.exports = { readData, writeData };
