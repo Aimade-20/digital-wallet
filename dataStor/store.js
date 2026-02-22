@@ -7,7 +7,7 @@ const filePath = path.join(__dirname,"..","Data","users.json");
  function readData() {
 
     try {
-    return JSON.parse(fs.readFileSync("data.json", "utf8"));
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
   } catch {
     return { users: [] };
   }

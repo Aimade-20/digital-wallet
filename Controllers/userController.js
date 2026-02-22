@@ -1,6 +1,6 @@
 
 
-const { readData, writeData } = require("../data/store");
+const { readData, writeData } = require("../dataStor/store");
 
 // get all users
 function getAllUsers(req, res) {
@@ -46,7 +46,6 @@ function updateUser(req, res, id) {
 
   req.on("end", () => {
     const { name } = JSON.parse(body);
-    const data = readData();
 
     if (!name) {
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -65,7 +64,7 @@ function updateUser(req, res, id) {
     updatedUser.name = name;
     writeData(data);
 
-    res.writeHead(201, { "Content-Type": "application/json" });
+    res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(updatedUser));
   });
 }
